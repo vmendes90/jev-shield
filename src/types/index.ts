@@ -20,9 +20,21 @@ export interface UserSettings {
   whitelistedDomains: string[];
 }
 
+export interface BlockedLog {
+  id: string;
+  domain: string;
+  snippet: string;
+  probability: number;
+  timestamp: number;
+}
+
 export interface ExtensionStats {
   totalEvaluated: number;
   totalBlocked: number;
+  cacheHits: number;
+  apiCalls: number;
+  pageBlocked: Record<string, number>; // Domain -> count
+  recentLogs: BlockedLog[];
 }
 
 export interface CooldownState {
@@ -33,7 +45,9 @@ export interface CooldownState {
 
 export type ExtensionMessage =
   | { type: 'EVALUATE_CANDIDATES'; candidates: CandidateElement[] }
-  | { type: 'GET_SETTINGS' }
+  | { type: 'GET_SETTINGS'; currentDomain?: string }
   | { type: 'UPDATE_SETTINGS'; settings: Partial<UserSettings> }
   | { type: 'GET_STATS' }
-  | { type: 'INCREMENT_BLOCKED'; count: number };
+  | { type: 'CLEAR_STATS' }
+  | { type: 'CLEAR_CACHE' }
+  | { type: 'RECORD_MANUAL_BLOCK'; domain: string; count?: number };
