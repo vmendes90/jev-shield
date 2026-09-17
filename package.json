@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build"
+    "build": "tsc && vite build",
+    "test:chrome": "node scripts/launch_chrome.js"
   },
   "dependencies": {
     "@typesafe-ai/sdk": "^0.6.0"
