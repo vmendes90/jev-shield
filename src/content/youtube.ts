@@ -2,7 +2,7 @@
  * YouTube-specific protection module for Jev Shield.
  * Handles:
  * 1. In-stream video ad skipping with full mouse/pointer simulation.
- * 2. Instant 16x acceleration and 'ended' event dispatching for unskippable ads.
+ * 2. Instant 16x acceleration and muting without buffer-breaking duration seeking.
  * 3. Native feed and sidebar ad-slot collapsing.
  */
 
@@ -64,15 +64,14 @@ export function handleYouTubeInStreamAds(): void {
       }
     }
 
-    // 2. Accelerate ad, mute audio, and dispatch 'ended' event
+    // 2. Accelerate ad to 16x and mute (letting it finish naturally in <1s without causing buffer freeze)
     if (video) {
-      video.muted = true;
-      video.playbackRate = 16.0;
-
-      if (!isNaN(video.duration) && isFinite(video.duration) && video.duration > 0 && video.duration < 180) {
-        video.currentTime = video.duration;
+      if (!video.muted) {
+        video.muted = true;
       }
-      video.dispatchEvent(new Event('ended'));
+      if (video.playbackRate < 16.0) {
+        video.playbackRate = 16.0;
+      }
     }
 
     // 3. Hide floating ad overlays inside player without hiding the player itself
@@ -122,7 +121,6 @@ export function removeYouTubeFeedAds(): void {
 export function startYouTubeProtector(): void {
   if (!window.location.hostname.includes('youtube.com')) return;
 
-  // Run periodic check for video ad transitions at 50ms interval
   setInterval(() => {
     handleYouTubeInStreamAds();
     removeYouTubeFeedAds();

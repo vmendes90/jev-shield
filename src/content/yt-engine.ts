@@ -4,8 +4,8 @@
  *
  * It:
  * 1. Prunes `adPlacements`, `playerAds`, and `adSlots` from YouTube's player configurations.
- * 2. Continuously detects in-stream video ads, dispatches full pointer/mouse event sequences
- *    to skip buttons, accelerates ad playback to 16x, and triggers the 'ended' event.
+ * 2. Rapidly skips and accelerates in-stream ads (16x muted) without buffer-killing duration jumps.
+ * 3. Dispatches comprehensive pointer and mouse event sequences to native skip buttons.
  */
 
 (function () {
@@ -97,6 +97,9 @@
     element.click();
   }
 
+  let wasMutedBeforeAd = false;
+  let isAdActive = false;
+
   function handleInStreamAds(): void {
     const player = document.getElementById('movie_player');
     const isAd =
@@ -106,6 +109,13 @@
     const video = document.querySelector('video') as HTMLVideoElement | null;
 
     if (isAd) {
+      if (!isAdActive) {
+        isAdActive = true;
+        if (video) {
+          wasMutedBeforeAd = video.muted;
+        }
+      }
+
       // 1. Dispatch full click event sequence to any available skip button
       const skipSelectors = [
         '.ytp-skip-ad-button',
@@ -127,31 +137,40 @@
         }
       }
 
-      // 2. Accelerate ad to 16x, mute, and dispatch 'ended'
+      // 2. Accelerate ad to 16x and mute (without seeking to duration, preventing black screen freeze)
       if (video) {
-        video.muted = true;
-        video.playbackRate = 16.0;
-
-        // If duration is an ad (< 180s), skip to the end
-        if (!isNaN(video.duration) && isFinite(video.duration) && video.duration > 0 && video.duration < 180) {
-          video.currentTime = video.duration;
+        if (!video.muted) {
+          video.muted = true;
         }
-        video.dispatchEvent(new Event('ended'));
+        if (video.playbackRate < 16.0) {
+          video.playbackRate = 16.0;
+        }
       }
+
+      // 3. Clean in-player promo overlays
+      const overlays = document.querySelectorAll(
+        '.ytp-ad-overlay-container, .ytp-ad-message-container, .ytp-ad-action-interstitial'
+      );
+      overlays.forEach((el) => {
+        (el as HTMLElement).style.setProperty('display', 'none', 'important');
+      });
     } else {
-      // Restore normal playback speed once ad is over
-      if (video && video.playbackRate > 1.0) {
-        video.playbackRate = 1.0;
-        if (video.muted) {
-          video.muted = false;
-        }
-        if (video.paused) {
-          video.play().catch(() => {});
+      if (isAdActive) {
+        isAdActive = false;
+        // Restore normal playback speed and audio once ad finishes
+        if (video) {
+          video.playbackRate = 1.0;
+          if (!wasMutedBeforeAd && video.muted) {
+            video.muted = false;
+          }
+          if (video.paused) {
+            video.play().catch(() => {});
+          }
         }
       }
     }
   }
 
-  // Run at 50ms intervals in the main world for instantaneous skip
+  // Run continuous check
   setInterval(handleInStreamAds, 50);
 })();
