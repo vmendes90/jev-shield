@@ -2,7 +2,8 @@
  * YouTube-specific protection module for Jev Shield.
  * Handles:
  * 1. In-stream video ad skipping and muting (without hiding the video player).
- * 2. Native feed and sidebar ad-slot collapsing.
+ * 2. Instant 'ended' event dispatching for unskippable ads.
+ * 3. Native feed and sidebar ad-slot collapsing.
  */
 
 let wasMutedBeforeAd = false;
@@ -29,7 +30,7 @@ export function handleYouTubeInStreamAds(): void {
       }
     }
 
-    // 1. Try to click any available skip button immediately
+    // 1. Click any available skip button immediately
     const skipButtons = [
       '.ytp-skip-ad-button',
       '.ytp-ad-skip-button',
@@ -48,11 +49,20 @@ export function handleYouTubeInStreamAds(): void {
       }
     }
 
-    // 2. Mute ad audio while showing so the user isn't annoyed
-    // Note: We intentionally avoid setting extreme playbackRates (e.g. 8x/16x) because YouTube's
-    // anti-adblock system detects rapid playback desync and enforces a 10-15s black loading stall.
-    if (video && !video.muted) {
-      video.muted = true;
+    // 2. Fast-forward the ad and trigger 'ended' event immediately
+    if (video) {
+      if (!video.muted) {
+        video.muted = true;
+      }
+
+      // Only seek if video.duration represents the ad (under 3 minutes)
+      // Never jump if duration is > 180s (which means it's the main video!)
+      if (!isNaN(video.duration) && isFinite(video.duration) && video.duration > 0 && video.duration < 180) {
+        video.currentTime = video.duration;
+      }
+
+      // Dispatch 'ended' event to inform YouTube's player that the ad is complete
+      video.dispatchEvent(new Event('ended'));
     }
 
     // 3. Hide floating ad overlays inside player without hiding the player itself
@@ -71,7 +81,7 @@ export function handleYouTubeInStreamAds(): void {
         if (!wasMutedBeforeAd && video.muted) {
           video.muted = false;
         }
-        // If YouTube paused the video at the ad transition, automatically resume playback
+        // If YouTube paused the video during the ad transition, auto-resume playback
         if (video.paused) {
           video.play().catch(() => {});
         }
@@ -108,5 +118,5 @@ export function startYouTubeProtector(): void {
   setInterval(() => {
     handleYouTubeInStreamAds();
     removeYouTubeFeedAds();
-  }, 250);
+  }, 100);
 }
