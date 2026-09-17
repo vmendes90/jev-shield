@@ -29,13 +29,15 @@ export function handleYouTubeInStreamAds(): void {
       }
     }
 
-    // 1. Try to click any available skip button
+    // 1. Try to click any available skip button immediately
     const skipButtons = [
       '.ytp-skip-ad-button',
       '.ytp-ad-skip-button',
       '.ytp-ad-skip-button-modern',
       'button.ytp-ad-skip-button-text',
+      '.ytp-ad-skip-button-container button',
       '.ytp-ad-overlay-close-button',
+      '[id^="skip-button:"] button',
     ];
 
     for (const selector of skipButtons) {
@@ -46,17 +48,11 @@ export function handleYouTubeInStreamAds(): void {
       }
     }
 
-    // 2. If skip button isn't clickable yet, speed up and mute the ad video
-    // IMPORTANT: NEVER set `video.currentTime = video.duration` because on YouTube,
-    // video.duration is the full length of the 20+ minute main video, which seeks to the
-    // end of the video and causes an infinite buffer stall!
-    if (video) {
-      if (!video.muted) {
-        video.muted = true;
-      }
-      if (video.playbackRate < 8.0) {
-        video.playbackRate = 8.0;
-      }
+    // 2. Mute ad audio while showing so the user isn't annoyed
+    // Note: We intentionally avoid setting extreme playbackRates (e.g. 8x/16x) because YouTube's
+    // anti-adblock system detects rapid playback desync and enforces a 10-15s black loading stall.
+    if (video && !video.muted) {
+      video.muted = true;
     }
 
     // 3. Hide floating ad overlays inside player without hiding the player itself
@@ -72,8 +68,12 @@ export function handleYouTubeInStreamAds(): void {
       isAdHandlingActive = false;
       if (video) {
         video.playbackRate = 1.0;
-        if (!wasMutedBeforeAd) {
+        if (!wasMutedBeforeAd && video.muted) {
           video.muted = false;
+        }
+        // If YouTube paused the video at the ad transition, automatically resume playback
+        if (video.paused) {
+          video.play().catch(() => {});
         }
       }
     }
