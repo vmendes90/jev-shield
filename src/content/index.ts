@@ -1,5 +1,6 @@
 import { CandidateElement, EvaluationResult, UserSettings } from '../types';
-import { findCandidatesInContainer, isVisibleCandidateBox } from './extractor';
+import { findCandidatesInContainer, isMediaOrPlayerElement, isVisibleCandidateBox } from './extractor';
+import { startYouTubeProtector } from './youtube';
 
 let currentSettings: UserSettings = {
   apiKey: '',
@@ -86,6 +87,14 @@ function isDomainActive(): boolean {
  * Applies the blocking action to an element confirmed as an ad.
  */
 function applyAdBlock(el: HTMLElement, result: EvaluationResult): void {
+  // Absolute safeguard: Never collapse or hide a video or audio player
+  if (isMediaOrPlayerElement(el)) {
+    console.warn('[Jev Shield] Safeguard: Prevented collapsing video player container');
+    el.dataset.jevChecked = 'true';
+    delete el.dataset.jevPending;
+    return;
+  }
+
   el.dataset.jevAd = 'true';
   el.dataset.jevChecked = 'true';
   delete el.dataset.jevPending;
@@ -247,6 +256,7 @@ async function init(): Promise<void> {
   if (isDomainActive()) {
     scanForAds(document);
     setupMutationObserver();
+    startYouTubeProtector();
   }
 }
 

@@ -30,7 +30,14 @@ const PROMO_KEYWORDS = [
 ];
 
 /**
+ * Safe class & id token matching regex.
+ * Avoids matching 'header', 'loader', 'download', 'broad', etc.
+ */
+const PROMO_TOKEN_REGEX = /(^|[-_ ])(ad|ads|advertisement|advertising|sponsored|promoted|sponsor)([-_ ]|$)/i;
+
+/**
  * Common selectors for feed cards, social items, and content containers.
+ * Note: Avoid overly broad selectors like `div[class*="ad-"]` which match `ad-showing` or `load-more`.
  */
 const CANDIDATE_SELECTORS = [
   'article',
@@ -39,19 +46,59 @@ const CANDIDATE_SELECTORS = [
   '[data-testid*="tweet"]',
   '[data-testid*="cell"]',
   'aside',
+  'ytd-ad-slot-renderer',
+  'ytd-in-feed-ad-layout-renderer',
+  'ytd-promoted-sparkles-web-renderer',
+  'ytd-banner-promo-renderer',
+  '#masthead-ad',
   'div[class*="sponsored" i]',
   'div[class*="promoted" i]',
-  'div[class*="ad-" i]',
-  'div[class*="-ad" i]',
   'div[id*="sponsored" i]',
   'div[id*="promoted" i]',
   'div[id*="google_ads" i]',
-  'div[data-ad]',
   'div[data-ad-slot]',
   '.feed-item',
   '.stream-item',
   '.native-ad',
 ];
+
+/**
+ * Safeguard: checks if an element is a media player, video, audio, or player shell.
+ * Media players must NEVER be evaluated or collapsed by the content blocker.
+ */
+export function isMediaOrPlayerElement(el: HTMLElement): boolean {
+  if (!el) return false;
+
+  // 1. Contains or is a direct video/audio element
+  if (
+    el.tagName === 'VIDEO' ||
+    el.tagName === 'AUDIO' ||
+    el.querySelector('video, audio') !== null
+  ) {
+    return true;
+  }
+
+  // 2. Known video player shells and watch containers across YouTube and video sites
+  const tag = el.tagName.toUpperCase();
+  if (
+    tag === 'YTD-PLAYER' ||
+    tag === 'YTD-WATCH-FLEXY' ||
+    tag === 'YTD-WATCH-METADATA' ||
+    ['movie_player', 'player', 'player-container', 'error-screen'].includes(el.id)
+  ) {
+    return true;
+  }
+
+  if (
+    el.closest(
+      '#movie_player, ytd-player, #player, #player-container, .html5-video-player, ytd-watch-flexy, .video-stream'
+    ) !== null
+  ) {
+    return true;
+  }
+
+  return false;
+}
 
 /**
  * Check if element passes bounding-box pre-filtering.
@@ -77,6 +124,11 @@ export function isVisibleCandidateBox(el: HTMLElement): boolean {
  * Determines if an element qualifies as a candidate for evaluation.
  */
 export function isPotentialCandidate(el: HTMLElement): boolean {
+  // Never target media players or their container shells
+  if (isMediaOrPlayerElement(el)) {
+    return false;
+  }
+
   if (!isVisibleCandidateBox(el)) {
     return false;
   }
@@ -97,19 +149,14 @@ export function isPotentialCandidate(el: HTMLElement): boolean {
     return false;
   }
 
-  // Check for explicit promo/sponsored keyword matches in text or attributes
+  // Check for explicit promo/sponsored keyword matches in text
   const lowerText = innerText.toLowerCase();
   const hasPromoKeyword = PROMO_KEYWORDS.some((kw) => lowerText.includes(kw));
 
-  const className = typeof el.className === 'string' ? el.className.toLowerCase() : '';
-  const idName = (el.id || '').toLowerCase();
-  const hasPromoClassOrId =
-    className.includes('ad') ||
-    className.includes('sponsor') ||
-    className.includes('promot') ||
-    idName.includes('ad') ||
-    idName.includes('sponsor') ||
-    idName.includes('promot');
+  // Safe token check on class and id (avoids substring false positives like 'header' or 'download')
+  const className = typeof el.className === 'string' ? el.className : '';
+  const idName = el.id || '';
+  const hasPromoClassOrId = PROMO_TOKEN_REGEX.test(className) || PROMO_TOKEN_REGEX.test(idName);
 
   // Check for outbound links
   const links = Array.from(el.querySelectorAll('a'))
