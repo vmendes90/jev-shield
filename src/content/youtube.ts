@@ -46,13 +46,16 @@ export function handleYouTubeInStreamAds(): void {
       }
     }
 
-    // 2. If skip button isn't clickable yet, speed up and fast-forward the ad video
+    // 2. If skip button isn't clickable yet, speed up and mute the ad video
+    // IMPORTANT: NEVER set `video.currentTime = video.duration` because on YouTube,
+    // video.duration is the full length of the 20+ minute main video, which seeks to the
+    // end of the video and causes an infinite buffer stall!
     if (video) {
-      video.muted = true;
-      video.playbackRate = 16.0;
-      if (!isNaN(video.duration) && isFinite(video.duration) && video.duration > 0) {
-        // Jump straight to the end of the ad segment
-        video.currentTime = video.duration;
+      if (!video.muted) {
+        video.muted = true;
+      }
+      if (video.playbackRate < 8.0) {
+        video.playbackRate = 8.0;
       }
     }
 

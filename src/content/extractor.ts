@@ -78,12 +78,10 @@ export function isMediaOrPlayerElement(el: HTMLElement): boolean {
     return true;
   }
 
-  // 2. Known video player shells and watch containers across YouTube and video sites
+  // 2. Known video player shells across YouTube and video sites
   const tag = el.tagName.toUpperCase();
   if (
     tag === 'YTD-PLAYER' ||
-    tag === 'YTD-WATCH-FLEXY' ||
-    tag === 'YTD-WATCH-METADATA' ||
     ['movie_player', 'player', 'player-container', 'error-screen'].includes(el.id)
   ) {
     return true;
@@ -91,7 +89,7 @@ export function isMediaOrPlayerElement(el: HTMLElement): boolean {
 
   if (
     el.closest(
-      '#movie_player, ytd-player, #player, #player-container, .html5-video-player, ytd-watch-flexy, .video-stream'
+      '#movie_player, ytd-player, #player, #player-container, .html5-video-player, .video-stream'
     ) !== null
   ) {
     return true;

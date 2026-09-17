@@ -1,0 +1,25 @@
+- generic "Leitor de vídeo do YouTube" [ref=f6e5]:
+  - generic [ref=f6e7]: Aniversário. Sumol. Sabe a muito.
+  - button "Reproduzir" [ref=f6e14] [cursor=pointer]
+  - generic [ref=f6e15]:
+    - generic [ref=f6e16]:
+      - slider "Controlo de deslize da procura" [disabled] [ref=f6e17]
+      - generic:
+        - generic:
+          - generic:
+            - slider "Clique ou desloque o painel para uma procura precisa." [disabled]
+    - generic [ref=f6e26]:
+      - generic [ref=f6e27]:
+        - button "Pausa (k)" [ref=f6e28] [cursor=pointer]
+        - generic [ref=f6e29]:
+          - button "Desativar som (m)" [ref=f6e31] [cursor=pointer]
+          - slider "Volume":
+            - generic [ref=f6e32] [cursor=pointer]
+        - button "0 minuto(s) 0 segundo(s) de 0 minuto(s) 6 segundo(s)" [ref=f6e35] [cursor=pointer]: 0:00 / 0:06
+      - generic [ref=f6e36]:
+        - generic [ref=f6e37]:
+          - button "Legendas indisponíveis" [ref=f6e38] [cursor=pointer]
+          - button "Definições" [ref=f6e40] [cursor=pointer]
+        - generic [ref=f6e41]:
+          - button "Modo de cinema (t)" [ref=f6e42] [cursor=pointer]
+          - button "Ecrã inteiro (f)" [ref=f6e43] [cursor=pointer]

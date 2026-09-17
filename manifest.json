@@ -4,8 +4,18 @@
   "version": "0.1.0",
   "description": "Block native ads, sponsored posts, and stealth promotions semantically using TypeSafe's Jev model.",
   "permissions": [
-    "storage"
+    "storage",
+    "declarativeNetRequest"
   ],
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "ad_rules",
+        "enabled": true,
+        "path": "rules/ad_rules.json"
+      }
+    ]
+  },
   "host_permissions": [
     "https://api.typesafe.ai/*",
     "<all_urls>"

@@ -1,0 +1,24 @@
+- generic "Leitor de vídeo do YouTube" [ref=e5]:
+  - button "Reproduzir" [ref=e9] [cursor=pointer]
+  - generic [ref=e10]:
+    - generic [ref=e11] [cursor=pointer]:
+      - slider "Controlo de deslize da procura" [ref=e12]
+      - generic:
+        - generic:
+          - generic:
+            - slider "Clique ou desloque o painel para uma procura precisa."
+    - generic [ref=e21]:
+      - generic [ref=e22]:
+        - button "Pausa (k)" [ref=e23] [cursor=pointer]
+        - generic [ref=e24]:
+          - button "Desativar som (m)" [ref=e26] [cursor=pointer]
+          - slider "Volume":
+            - generic [ref=e27] [cursor=pointer]
+        - button "0 minuto(s) 0 segundo(s) de 17 minuto(s) 47 segundo(s)" [ref=e30] [cursor=pointer]: 0:00 / 17:47
+      - generic [ref=e31]:
+        - generic [ref=e32]:
+          - button "Legendas indisponíveis" [ref=e33] [cursor=pointer]
+          - button "Definições" [ref=e35] [cursor=pointer]
+        - generic [ref=e36]:
+          - button "Modo de cinema (t)" [ref=e37] [cursor=pointer]
+          - button "Ecrã inteiro (f)" [ref=e38] [cursor=pointer]
