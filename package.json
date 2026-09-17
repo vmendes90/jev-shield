@@ -1,0 +1,21 @@
+{
+  "name": "jev-shield",
+  "displayName": "Jev Shield - AI Native Ad Blocker",
+  "version": "0.1.0",
+  "description": "Privacy-first open-source Chrome extension that semantically blocks native ads and sponsored feed posts using TypeSafe's Jev model.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build"
+  },
+  "dependencies": {
+    "@typesafe-ai/sdk": "^0.6.0"
+  },
+  "devDependencies": {
+    "@crxjs/vite-plugin": "^2.0.0-beta.28",
+    "@types/chrome": "^0.0.280",
+    "@types/node": "^22.5.0",
+    "typescript": "^5.5.4",
+    "vite": "^5.4.8"
+  }
+}

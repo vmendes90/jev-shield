@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Jev Shield</title>
+    <link rel="stylesheet" href="./popup.css" />
+  </head>
+  <body>
+    <header>
+      <div class="logo-group">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+        </svg>
+        <h1>Jev Shield</h1>
+      </div>
+      <div id="statusPill" class="status-pill">Active</div>
+    </header>
+
+    <div id="cooldownBanner" class="banner-cooldown">
+      ⚠️ <strong>Back-off Active:</strong> <span id="cooldownReason">Cooldown</span>
+    </div>
+
+    <div class="card">
+      <div class="row-toggle">
+        <span>Enable Protection</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="enabledToggle" checked />
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="row-toggle" style="margin-top: 10px;">
+        <span>Show "Blocked" Badges</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="badgeToggle" checked />
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">TypeSafe API Key</div>
+      <div class="input-group">
+        <input type="password" id="apiKeyInput" placeholder="sk_live_..." />
+        <button id="saveKeyBtn" class="btn btn-primary">Save</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">AI Sensitivity</div>
+      <div class="slider-group">
+        <div class="slider-label-row">
+          <span>Confidence Threshold</span>
+          <span id="thresholdValue">85%</span>
+        </div>
+        <input type="range" id="thresholdSlider" min="50" max="99" value="85" />
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Statistics</div>
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div id="statEvaluated" class="stat-number">0</div>
+          <div class="stat-label">Scanned</div>
+        </div>
+        <div class="stat-box">
+          <div id="statBlocked" class="stat-number">0</div>
+          <div class="stat-label">Blocked</div>
+        </div>
+      </div>
+    </div>
+
+    <button id="whitelistSiteBtn" class="btn btn-outline">Pause on this site</button>
+
+    <footer>
+      Powered by <a href="https://typesafe.ai" target="_blank" rel="noreferrer">TypeSafe Jev</a> • Open Source
+    </footer>
+
+    <script type="module" src="./popup.ts"></script>
+  </body>
+</html>
