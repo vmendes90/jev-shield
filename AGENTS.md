@@ -55,6 +55,9 @@ Welcome to **Jev Shield**. This document defines the architectural principles, c
 ### 🔴 Rule 7: Enforce Bounding-Box Pre-Filtering
 * Before processing any DOM candidate with regex or sending it to the TypeSafe API, evaluate `isVisibleCandidateBox(el)`. Discard any element with `rect.height <= 40 || rect.width <= 40` to avoid burning CPU cycles and tokens on invisible tracking pixels or hidden wrappers.
 
+### 🔴 Rule 8: Rule Asset Synchronization
+* Whenever editing `rules/ad_rules.json`, always immediately mirror changes to `public/rules/ad_rules.json`. Vite bundles the public assets directly into `dist/rules/`, and both files must remain in exact 1:1 synchronization.
+
 ---
 
 ## 3. Directory Manifest

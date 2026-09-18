@@ -24,9 +24,11 @@ In addition, Jev Shield includes an advanced **media and video stream engine** e
 ## ✨ Features
 
 - 🧠 **Semantic Ad Detection**: Evaluates context, phrasing, and promotional intent rather than relying solely on fragile class names or URL lists.
-- 🚫 **Traditional Display & Network Blocker**:
-  - **DeclarativeNetRequest Rules**: Blocks 20 major third-party ad, pop-under, and tracking networks (`doubleclick`, `googlesyndication`, `antiadblocksystems`, `popads`, `taboola`, `criteo`, etc.) at the network layer without browser penalties.
+- 🚫 **Multi-Tier Display & Network Blocker**:
+  - **DeclarativeNetRequest Rules (35 Networks)**: Blocks 35 major ad delivery, header-bidding, tracking, and publisher SSP networks (`googleads`, `doubleclick`, `googlesyndication`, `mediavine`, `grow.me`, `scriptwrapper`, `adthrive`/`raptive`, `ezoic`, `pubmatic`, `rubicon`, `triplelift`, `sharethrough`, `popads`, `taboola`, `criteo`, `openx`, etc.) at the browser network layer with zero latency or performance penalties.
   - **Display Banner & Iframe Remover**: Automatically discovers and collapses traditional banner containers (`.code-block`, `ins.adsbygoogle`, `iframe[id*="__clb-"]`, `#carbonads`, etc.) with `display: none !important`.
+  - **Sticky & Floating Anchor Ad Neutralizer**: Targets and collapses adhesive viewport footers, floating engagement widgets (`grow-widget`, `.mv-sticky-footer`, `[data-grow-banner]`), and docked mobile/desktop ad bars.
+  - **Universal Iframe Protection (`all_frames: true`)**: Sanitizes and strips ads inside embedded third-party and cross-origin iframes directly across all pages.
 - 📺 **Dual-Layer Media & Video Engine**:
   - **MAIN-World Scriptlet**: Injected at `document_start` into the page's execution context to intercept and prune ad payloads before media players initialize.
   - **In-Stream Media Acceleration**: Accelerates in-stream ads muted with legitimate frame decoding, preventing buffer starvation and black-screen playback freezes.
