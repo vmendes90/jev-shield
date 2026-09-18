@@ -5,6 +5,13 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Manifest V3](https://img.shields.io/badge/Chrome-Manifest%20V3-brightgreen.svg)](#)
 [![Powered by TypeSafe](https://img.shields.io/badge/Powered%20by-TypeSafe%20Jev-orange.svg)](https://typesafe.ai)
+[![CI Build & Verify](https://github.com/vmendes90/jev-shield/actions/workflows/ci.yml/badge.svg)](https://github.com/vmendes90/jev-shield/actions/workflows/ci.yml)
+
+<p align="center">
+  <img src="brag-output/brag.jpg" alt="Jev Shield Preview" width="720" style="border-radius: 8px;" />
+  <br />
+  <em>🎬 Watch the launch video: <a href="brag-output/brag.mp4"><strong>brag-output/brag.mp4</strong></a></em>
+</p>
 
 Traditional ad blockers (like uBlock Origin) rely primarily on static URL filterlists and CSS selector lists. While effective for traditional banner networks, they struggle with **native ads and sponsored feed cards** (on platforms like X/Twitter, Reddit, LinkedIn, and modern digital feeds) where promotional posts share the exact same first-party domain, markup structure, and styling as organic content.
 
