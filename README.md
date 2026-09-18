@@ -17,6 +17,9 @@ In addition, Jev Shield includes a **dedicated YouTube engine** engineered to de
 ## ✨ Features
 
 - 🧠 **Semantic Ad Detection**: Evaluates context, phrasing, and promotional intent rather than relying solely on fragile class names or URL lists.
+- 🚫 **Traditional Display & Network Blocker**:
+  - **DeclarativeNetRequest Rules**: Blocks 20 major third-party ad, pop-under, and tracking networks (`doubleclick`, `googlesyndication`, `antiadblocksystems`, `popads`, `taboola`, `criteo`, etc.) at the network layer without browser penalties.
+  - **Display Banner & Iframe Remover**: Automatically discovers and collapses traditional banner containers (`.code-block`, `ins.adsbygoogle`, `iframe[id*="__clb-"]`, `#carbonads`, etc.) with `display: none !important`.
 - 📺 **Dual-Layer YouTube Engine**:
   - **MAIN-World Scriptlet (`src/content/yt-engine.ts`)**: Injected at `document_start` into the page's execution context to strip `adPlacements`, `playerAds`, and `adSlots` from player responses before YouTube's video player initializes.
   - **In-Stream Rapid Skipping (`src/content/youtube.ts`)**: Accelerates in-stream ads to 16x muted (playing a 15-second ad in ~0.9 seconds with natural frame decoding), avoiding the 10–15s black screen buffer stalls caused by unnatural duration seeks.
