@@ -89,7 +89,7 @@ flowchart TD
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/jev-shield.git
+git clone https://github.com/vmendes90/jev-shield.git
 cd jev-shield
 
 # Install dependencies
@@ -164,6 +164,14 @@ jev-shield/
 │       ├── popup.css        # Clean, modern dark/light UI styling
 │       └── popup.ts         # Popup state management, tab switching & settings UI
 ```
+
+---
+
+## 🤝 Community & Contributing
+
+- **Contributing**: Please review [CONTRIBUTING.md](CONTRIBUTING.md) and [AGENTS.md](AGENTS.md) before submitting pull requests or proposing architectural changes.
+- **Security**: For responsible disclosure, read our [SECURITY.md](SECURITY.md).
+- **License**: Released under the [MIT License](LICENSE).
 
 ---
 

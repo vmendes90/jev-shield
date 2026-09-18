@@ -1,0 +1,47 @@
+name: 🐛 Bug Report
+description: Report a broken website layout, unblocked ad, or extension error
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report an issue with Jev Shield!
+  - type: input
+    id: url
+    attributes:
+      label: Target URL
+      description: The webpage where the issue occurred.
+      placeholder: https://example.com/feed
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Describe what went wrong (e.g. ad appeared, page stalled, video froze).
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen instead?
+    validations:
+      required: true
+  - type: dropdown
+    id: browser
+    attributes:
+      label: Browser
+      options:
+        - Google Chrome
+        - Brave Browser
+        - Microsoft Edge
+        - Arc / Opera / Other Chromium
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Console Logs / Activity Log Snippets
+      description: Any errors or messages from Chrome DevTools (F12) or the Jev Shield Activity Log.
