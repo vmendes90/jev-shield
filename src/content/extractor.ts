@@ -27,13 +27,17 @@ const PROMO_KEYWORDS = [
   'partner content',
   'brand partner',
   'affiliate link',
+  'want fewer ads',
+  'get grow today',
+  'grow today',
+  'fewer ads like this',
 ];
 
 /**
  * Safe class & id token matching regex.
  * Avoids matching 'header', 'loader', 'download', 'broad', etc.
  */
-const PROMO_TOKEN_REGEX = /(^|[-_ ])(ad|ads|advertisement|advertising|sponsored|promoted|sponsor)([-_ ]|$)/i;
+const PROMO_TOKEN_REGEX = /(^|[-_ ])(ad|ads|advertisement|advertising|sponsored|promoted|sponsor|mediavine|grow)([-_ ]|$)/i;
 
 /**
  * Common selectors for feed cards, social items, and content containers.
@@ -66,6 +70,12 @@ const CANDIDATE_SELECTORS = [
   'div[class*="taboola" i]',
   'div[class*="outbrain" i]',
   'div[class*="revcontent" i]',
+  'div[class*="grow" i]',
+  'div[id*="grow" i]',
+  'div[class*="mediavine" i]',
+  'div[id*="mediavine" i]',
+  'div[class*="sticky" i]',
+  'div[class*="anchor" i]',
   '.feed-item',
   '.stream-item',
   '.native-ad',
@@ -91,10 +101,40 @@ export const DISPLAY_AD_SELECTORS = [
   'div[class*="ad-box" i]',
   'div[class*="ads-holder" i]',
   'div[class*="advertisement" i]',
+  // Mediavine & Grow
+  'div[id*="mediavine" i]',
+  'div[class*="mediavine" i]',
+  '[data-mediavine]',
+  'div[id^="mv-"]',
+  'div[class*="mv-" i]',
+  '.mv-ad-box',
+  '.mv-sticky-footer',
+  'grow-widget',
+  'div[data-grow-widget]',
+  'div[data-grow-banner]',
+  'div[id*="grow-" i]',
+  'div[class*="grow-" i]',
+  '#mediavine-settings',
+  // Sticky & Floating Anchor Ads
+  'div[class*="sticky-ad" i]',
+  'div[class*="sticky-footer-ad" i]',
+  'div[class*="anchor-ad" i]',
+  'div[class*="ad-anchor" i]',
+  'div[id*="sticky-ad" i]',
+  'div[id*="anchor-ad" i]',
+  // Ezoic & Raptive / AdThrive
+  'div[class*="ezoic-ad" i]',
+  'div[id*="ezoic-pub-ad" i]',
+  'div[class*="adthrive" i]',
+  'div[id*="adthrive" i]',
+  // Ad iframes
   'iframe[id*="__clb-"]',
   'iframe[src*="ad"]',
   'iframe[src*="doubleclick"]',
   'iframe[src*="syndication"]',
+  'iframe[src*="mediavine"]',
+  'iframe[src*="grow.me"]',
+  'iframe[src*="scriptwrapper"]',
   'iframe[id*="ad-" i]',
   'iframe[id*="ad_" i]',
   'iframe[class*="ad-" i]',
