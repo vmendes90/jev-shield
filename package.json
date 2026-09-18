@@ -1,8 +1,27 @@
 {
   "name": "jev-shield",
-  "displayName": "Jev Shield - AI Native Ad Blocker",
   "version": "0.1.0",
   "description": "Privacy-first open-source Chrome extension that semantically blocks native ads and sponsored feed posts using TypeSafe's Jev model.",
+  "license": "MIT",
+  "author": "Valter Mendes",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vmendes90/jev-shield.git"
+  },
+  "bugs": {
+    "url": "https://github.com/vmendes90/jev-shield/issues"
+  },
+  "homepage": "https://github.com/vmendes90/jev-shield#readme",
+  "keywords": [
+    "chrome-extension",
+    "manifest-v3",
+    "ad-blocker",
+    "native-ads",
+    "typesafe",
+    "jev",
+    "ai",
+    "privacy"
+  ],
   "type": "module",
   "scripts": {
     "dev": "vite",
