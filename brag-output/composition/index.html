@@ -1,0 +1,664 @@
+<!doctype html>
+<html lang="en" data-resolution="landscape">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html, body {
+        margin: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #070a12;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        color: #f8fafc;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      #root {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        background: radial-gradient(circle at 50% 30%, #0c172e 0%, #060913 70%, #03050a 100%);
+        overflow: hidden;
+      }
+
+      /* Ambient Grid & Glows */
+      .ambient-glow {
+        position: absolute;
+        width: 800px;
+        height: 800px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(2, 132, 199, 0.15) 0%, rgba(2, 132, 199, 0) 70%);
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+      }
+
+      .ambient-grid {
+        position: absolute;
+        inset: 0;
+        background-size: 60px 60px;
+        background-image: 
+          linear-gradient(to right, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+        mask-image: radial-gradient(ellipse at 50% 50%, black 40%, transparent 80%);
+      }
+
+      /* Pill Badges */
+      .pill-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 18px;
+        background: rgba(2, 132, 199, 0.12);
+        border: 1px solid rgba(56, 189, 248, 0.3);
+        border-radius: 9999px;
+        color: #38bdf8;
+        font-size: 15px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: 24px;
+      }
+
+      /* Scene Containers */
+      .scene {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 60px;
+        opacity: 0;
+        visibility: hidden;
+      }
+
+      /* Typography */
+      .hero-title {
+        font-size: 64px;
+        font-weight: 800;
+        line-height: 1.15;
+        letter-spacing: -0.02em;
+        color: #ffffff;
+        max-width: 1200px;
+      }
+
+      .hero-title .gradient-text {
+        background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .hero-subtitle {
+        font-size: 26px;
+        font-weight: 400;
+        color: #94a3b8;
+        margin-top: 20px;
+        max-width: 900px;
+        line-height: 1.5;
+      }
+
+      /* Scene 1: Native Post Mockup */
+      .post-card-container {
+        margin-top: 40px;
+        width: 680px;
+        background: #0f172a;
+        border: 1px solid #1e293b;
+        border-radius: 16px;
+        padding: 24px;
+        text-align: left;
+        box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.6);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .post-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+      }
+
+      .post-user {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .post-avatar {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #3b82f6, #6366f1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: white;
+      }
+
+      .post-name {
+        font-size: 16px;
+        font-weight: 600;
+        color: #f1f5f9;
+      }
+
+      .post-handle {
+        font-size: 14px;
+        color: #94a3b8;
+      }
+
+      .post-promo-tag {
+        font-size: 12px;
+        font-weight: 600;
+        color: #94a3b8;
+        background: #1e293b;
+        padding: 4px 10px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .post-content {
+        font-size: 17px;
+        color: #cbd5e1;
+        line-height: 1.5;
+        margin-bottom: 16px;
+      }
+
+      .post-card-preview {
+        height: 140px;
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        border-radius: 10px;
+        border: 1px solid #334155;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #94a3b8;
+        font-size: 14px;
+        gap: 8px;
+      }
+
+      /* Scan beam */
+      .scan-beam {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: #38bdf8;
+        box-shadow: 0 0 20px 6px #0284c7;
+        opacity: 0;
+      }
+
+      /* Jev Collapsed Badge */
+      .jev-badge {
+        display: none;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 24px;
+        background: #0f172a;
+        border: 1px dashed #38bdf8;
+        border-radius: 12px;
+        width: 680px;
+        box-shadow: 0 10px 25px -5px rgba(2, 132, 199, 0.2);
+        margin-top: 40px;
+      }
+
+      .jev-badge-left {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 17px;
+        font-weight: 600;
+        color: #e2e8f0;
+      }
+
+      .jev-badge-score {
+        background: rgba(2, 132, 199, 0.25);
+        color: #38bdf8;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 700;
+      }
+
+      .jev-badge-btn {
+        background: transparent;
+        border: 1px solid #475569;
+        color: #94a3b8;
+        padding: 6px 16px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      /* Scene 3: Popup Showcase */
+      .popup-card {
+        width: 440px;
+        background: #0f172a;
+        border: 1px solid #334155;
+        border-radius: 16px;
+        padding: 24px;
+        text-align: left;
+        box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 40px -10px rgba(2, 132, 199, 0.3);
+      }
+
+      .popup-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid #1e293b;
+      }
+
+      .popup-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 20px;
+        font-weight: 700;
+        color: #ffffff;
+      }
+
+      .status-pill {
+        background: rgba(16, 185, 129, 0.15);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        color: #10b981;
+        padding: 4px 12px;
+        border-radius: 9999px;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .domain-badge {
+        background: rgba(2, 132, 199, 0.1);
+        border: 1px solid rgba(2, 132, 199, 0.25);
+        padding: 10px 14px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+        font-size: 14px;
+        color: #93c5fd;
+      }
+
+      .metrics-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+
+      .metric-box {
+        background: #1e293b;
+        border: 1px solid #334155;
+        border-radius: 10px;
+        padding: 12px 14px;
+        text-align: center;
+      }
+
+      .metric-num {
+        font-size: 28px;
+        font-weight: 800;
+        color: #38bdf8;
+      }
+
+      .metric-lbl {
+        font-size: 11px;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-top: 4px;
+      }
+
+      .toggle-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-top: 1px solid #1e293b;
+      }
+
+      .toggle-label {
+        font-size: 14px;
+        color: #e2e8f0;
+      }
+
+      .switch-ui {
+        width: 38px;
+        height: 22px;
+        background: #0284c7;
+        border-radius: 9999px;
+        position: relative;
+      }
+
+      .switch-handle {
+        width: 16px;
+        height: 16px;
+        background: white;
+        border-radius: 50%;
+        position: absolute;
+        top: 3px;
+        right: 3px;
+      }
+
+      /* Scene 4: Outro */
+      .outro-shield {
+        font-size: 110px;
+        margin-bottom: 20px;
+        filter: drop-shadow(0 0 35px rgba(56, 189, 248, 0.5));
+      }
+
+      .github-box {
+        margin-top: 36px;
+        display: inline-flex;
+        align-items: center;
+        gap: 14px;
+        padding: 14px 28px;
+        background: rgba(30, 41, 59, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 12px;
+        font-size: 22px;
+        font-weight: 600;
+        color: #f8fafc;
+        box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.5);
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="18"
+      data-width="1920"
+      data-height="1080"
+    >
+      <div class="ambient-glow" id="ambientGlow"></div>
+      <div class="ambient-grid"></div>
+
+      <!-- BGM Audio Track -->
+      <audio id="bgm" data-track-index="0" data-start="0" data-duration="18" data-volume="1" src="assets/music/track.mp3"></audio>
+
+      <!-- SCENE 1: The Problem (0.0s – 3.2s) -->
+      <div class="scene" id="scene1">
+        <div class="pill-badge" id="s1Badge">⚠️ Modern Web Advertising</div>
+        <h1 class="hero-title" id="s1Title">
+          URL blockers only check domains.<br />
+          <span class="gradient-text">What happens when ads live in your feed?</span>
+        </h1>
+        <div class="post-card-container" id="s1Card">
+          <div class="post-header">
+            <div class="post-user">
+              <div class="post-avatar">AD</div>
+              <div>
+                <div class="post-name">Stealth Tech Feed</div>
+                <div class="post-handle">@sponsor · Native Post</div>
+              </div>
+            </div>
+            <span class="post-promo-tag">⚡ Promoted</span>
+          </div>
+          <div class="post-content">
+            "Why every engineer in 2026 is switching to this high-speed developer tool..."
+          </div>
+          <div class="post-card-preview">
+            <span>Sponsored Card · Same First-Party Domain & DOM</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCENE 2: The Solution (3.2s – 7.5s) -->
+      <div class="scene" id="scene2">
+        <div class="pill-badge" id="s2Badge">🛡️ Calibrated AI Classification</div>
+        <h1 class="hero-title" id="s2Title">
+          System One AI in your browser.<br />
+          <span class="gradient-text">Instant intent detection in &lt;100ms.</span>
+        </h1>
+        <div class="post-card-container" id="s2Card">
+          <div class="scan-beam" id="scanBeam" data-layout-allow-overflow></div>
+          <div class="post-header">
+            <div class="post-user">
+              <div class="post-avatar">AD</div>
+              <div>
+                <div class="post-name">Stealth Tech Feed</div>
+                <div class="post-handle">@sponsor · Native Post</div>
+              </div>
+            </div>
+            <span class="post-promo-tag" id="probTag">⚡ Evaluating...</span>
+          </div>
+          <div class="post-content">
+            "Why every engineer in 2026 is switching to this high-speed developer tool..."
+          </div>
+          <div class="post-card-preview">
+            <span>Inspecting candidate text semantics...</span>
+          </div>
+        </div>
+        <div class="jev-badge" id="s2JevBadge">
+          <div class="jev-badge-left">
+            <span>🛡️ Native Ad hidden by Jev</span>
+            <span class="jev-badge-score">94% ad</span>
+          </div>
+          <button class="jev-badge-btn" type="button">Show</button>
+        </div>
+      </div>
+
+      <!-- SCENE 3: The Engine & Dashboard (7.5s – 12.8s) -->
+      <div class="scene" id="scene3">
+        <div class="pill-badge" id="s3Badge">⚡ Dual-Layer Protection Engine</div>
+        <h1 class="hero-title" id="s3Title">
+          Semantic feed cleaner + display shield.<br />
+          <span class="gradient-text">Zero telemetry. 100% client-side BYOK.</span>
+        </h1>
+        <div style="margin-top: 36px;" id="s3PopupWrap">
+          <div class="popup-card">
+            <div class="popup-header">
+              <div class="popup-brand">🛡️ Jev Shield</div>
+              <span class="status-pill">Active</span>
+            </div>
+            <div class="domain-badge">
+              <span>canyoublockit.com: 15 blocked</span>
+              <span>🛡️ Protected</span>
+            </div>
+            <div class="metrics-grid">
+              <div class="metric-box" id="mb1">
+                <div class="metric-num" id="mn1">0</div>
+                <div class="metric-lbl">Total Blocked</div>
+              </div>
+              <div class="metric-box" id="mb2">
+                <div class="metric-num" id="mn2">0</div>
+                <div class="metric-lbl">Total Scanned</div>
+              </div>
+              <div class="metric-box" id="mb3">
+                <div class="metric-num" id="mn3">0%</div>
+                <div class="metric-lbl">Cache Efficiency</div>
+              </div>
+              <div class="metric-box" id="mb4">
+                <div class="metric-num" id="mn4">0</div>
+                <div class="metric-lbl">Jev API Calls</div>
+              </div>
+            </div>
+            <div class="toggle-row">
+              <span class="toggle-label">Enable Protection</span>
+              <div class="switch-ui"><div class="switch-handle"></div></div>
+            </div>
+            <div class="toggle-row">
+              <span class="toggle-label">Deep AI Scan</span>
+              <div class="switch-ui" id="deepSwitch"><div class="switch-handle"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCENE 4: Outro (12.8s – 18.0s) -->
+      <div class="scene" id="scene4">
+        <div class="outro-shield" id="outroShield">🛡️</div>
+        <h1 class="hero-title" id="outroTitle">
+          JEV SHIELD
+        </h1>
+        <p class="hero-subtitle" id="outroSub">
+          The Open Source AI Native Ad Blocker · Powered by TypeSafe Jev
+        </p>
+        <div class="github-box" id="outroCta">
+          <span>📦</span>
+          <span>github.com/vmendes90/jev-shield</span>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // ==========================================
+      // SCENE 1 (0.0s – 3.2s)
+      // ==========================================
+      tl.set("#scene1", { autoAlpha: 1 }, 0);
+      tl.fromTo("#s1Badge", { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 0.2);
+      tl.fromTo("#s1Title", { opacity: 0, y: 25 }, { opacity: 1, y: 0, duration: 0.7, ease: "power2.out" }, 0.4);
+      tl.fromTo("#s1Card", { opacity: 0, scale: 0.94, y: 30 }, { opacity: 1, scale: 1, y: 0, duration: 0.7, ease: "power3.out" }, 0.7);
+
+      // Exit Scene 1
+      tl.to("#scene1", { opacity: 0, scale: 0.96, duration: 0.4, ease: "power2.in" }, 2.9);
+      tl.set("#scene1", { autoAlpha: 0 }, 3.3);
+
+      // ==========================================
+      // SCENE 2 (3.2s – 7.5s) // beat-locked: 3.20s
+      // ==========================================
+      tl.set("#scene2", { autoAlpha: 1 }, 3.2);
+      tl.fromTo("#s2Badge", { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 3.2);
+      tl.fromTo("#s2Title", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 3.4);
+      tl.fromTo("#s2Card", { opacity: 0, scale: 0.95 }, { opacity: 1, scale: 1, duration: 0.5, ease: "power2.out" }, 3.6);
+
+      // Scan beam downward
+      tl.fromTo("#scanBeam", 
+        { opacity: 0, y: 0 }, 
+        { opacity: 1, y: 320, duration: 1.0, ease: "power1.inOut" }, 
+        4.0
+      );
+      tl.to("#scanBeam", { opacity: 0, duration: 0.2 }, 5.0);
+
+      // AI Detection tag update
+      tl.call(() => {
+        const tag = document.getElementById("probTag");
+        if (tag) {
+          tag.textContent = "🚨 94% Ad Probability";
+          tag.style.background = "rgba(239, 68, 68, 0.2)";
+          tag.style.color = "#f87171";
+          tag.style.border = "1px solid #ef4444";
+        }
+      }, null, 5.0);
+
+      // Card collapse into badge (transform only)
+      tl.to("#s2Card", { 
+        scaleY: 0, 
+        scaleX: 0.85,
+        opacity: 0, 
+        y: -30,
+        duration: 0.45, 
+        ease: "power3.in" 
+      }, 5.4);
+      tl.set("#s2Card", { display: "none" }, 5.85);
+
+      tl.set("#s2JevBadge", { display: "flex" }, 5.85);
+      tl.fromTo("#s2JevBadge", 
+        { opacity: 0, scale: 0.85, y: 15 }, 
+        { opacity: 1, scale: 1, y: 0, duration: 0.5, ease: "back.out(1.7)" }, 
+        5.85
+      );
+
+      // Exit Scene 2
+      tl.to("#scene2", { opacity: 0, scale: 0.96, duration: 0.4, ease: "power2.in" }, 7.2);
+      tl.set("#scene2", { autoAlpha: 0 }, 7.6);
+
+      // ==========================================
+      // SCENE 3 (7.5s – 12.8s) // beat-locked: 7.50s
+      // ==========================================
+      tl.set("#scene3", { autoAlpha: 1 }, 7.5);
+      tl.fromTo("#s3Badge", { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 7.5);
+      tl.fromTo("#s3Title", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, 7.7);
+      tl.fromTo("#s3PopupWrap", { opacity: 0, scale: 0.88, y: 35 }, { opacity: 1, scale: 1, y: 0, duration: 0.7, ease: "power3.out" }, 8.0);
+
+      // Sequential stat counters ticking up on beat grid
+      // beat-grid: stat 1 at 8.7s, stat 2 at 9.2s, stat 3 at 9.7s, stat 4 at 10.2s
+      const statsObj = { b1: 0, b2: 0, b3: 0, b4: 0 };
+      tl.to(statsObj, {
+        b1: 15,
+        duration: 0.8,
+        ease: "power1.out",
+        onUpdate: () => {
+          const el = document.getElementById("mn1");
+          if (el) el.textContent = Math.round(statsObj.b1).toString();
+        }
+      }, 8.6);
+
+      tl.to(statsObj, {
+        b2: 4,
+        duration: 0.8,
+        ease: "power1.out",
+        onUpdate: () => {
+          const el = document.getElementById("mn2");
+          if (el) el.textContent = Math.round(statsObj.b2).toString();
+        }
+      }, 9.1);
+
+      tl.to(statsObj, {
+        b3: 25,
+        duration: 0.8,
+        ease: "power1.out",
+        onUpdate: () => {
+          const el = document.getElementById("mn3");
+          if (el) el.textContent = Math.round(statsObj.b3) + "%";
+        }
+      }, 9.6);
+
+      tl.to(statsObj, {
+        b4: 3,
+        duration: 0.8,
+        ease: "power1.out",
+        onUpdate: () => {
+          const el = document.getElementById("mn4");
+          if (el) el.textContent = Math.round(statsObj.b4).toString();
+        }
+      }, 10.1);
+
+      // Toggle pulse animation
+      tl.fromTo("#deepSwitch", { scale: 1 }, { scale: 1.15, yoyo: true, repeat: 1, duration: 0.3, ease: "power2.inOut" }, 10.8);
+
+      // Exit Scene 3
+      tl.to("#scene3", { opacity: 0, scale: 1.05, duration: 0.4, ease: "power2.in" }, 12.5);
+      tl.set("#scene3", { autoAlpha: 0 }, 12.9);
+
+      // ==========================================
+      // SCENE 4: Outro (12.8s – 18.0s) // beat-locked: 12.80s
+      // ==========================================
+      tl.set("#scene4", { autoAlpha: 1 }, 12.8);
+      tl.fromTo("#outroShield", { scale: 0.4, opacity: 0, rotation: -15 }, { scale: 1, opacity: 1, rotation: 0, duration: 0.9, ease: "elastic.out(1, 0.6)" }, 12.9);
+      tl.fromTo("#outroTitle", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 13.5);
+      tl.fromTo("#outroSub", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out" }, 13.9);
+      tl.fromTo("#outroCta", { opacity: 0, scale: 0.9, y: 20 }, { opacity: 1, scale: 1, y: 0, duration: 0.6, ease: "back.out(1.5)" }, 14.4);
+
+      // Ambient glow pulse
+      tl.to("#ambientGlow", { scale: 1.3, opacity: 0.4, duration: 1.5, yoyo: true, repeat: 1, ease: "sine.inOut" }, 13.0);
+
+      // Final audio fade
+      tl.to("#bgm", { volume: 0, duration: 1.8, ease: "power1.out" }, 16.2);
+
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

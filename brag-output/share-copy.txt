@@ -1,0 +1,7 @@
+Traditional ad blockers only check domains. What happens when the ad comes from your actual feed?
+
+We built Jev Shield: an open-source Chrome extension that uses TypeSafe Jev AI to detect stealth promotions and kill native ads in real time. 🛡️
+
+Zero telemetry. 100% client-side BYOK.
+
+https://github.com/vmendes90/jev-shield
