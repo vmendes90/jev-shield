@@ -1,5 +1,5 @@
 import { CandidateElement, EvaluationResult, UserSettings } from '../types';
-import { findCandidatesInContainer, isMediaOrPlayerElement, isVisibleCandidateBox } from './extractor';
+import { findCandidatesInContainer, findDisplayAdElements, isMediaOrPlayerElement, isVisibleCandidateBox } from './extractor';
 import { startYouTubeProtector } from './youtube';
 
 let currentSettings: UserSettings = {
@@ -186,10 +186,40 @@ async function processCandidateBatch(items: { element: HTMLElement; candidate: C
 }
 
 /**
+ * Detects and collapses traditional display banner ads, ad iframes, and sponsored widgets.
+ */
+function cleanDisplayAds(root: ParentNode = document): void {
+  if (!isDomainActive()) return;
+
+  const displayAds = findDisplayAdElements(root);
+  if (displayAds.length === 0) return;
+
+  let blockedCount = 0;
+  for (const el of displayAds) {
+    if (el.dataset.jevChecked === 'true') continue;
+
+    el.dataset.jevChecked = 'true';
+    el.dataset.jevAd = 'true';
+    el.classList.add('jev-collapsed-ad');
+    el.style.setProperty('display', 'none', 'important');
+    blockedCount++;
+  }
+
+  if (blockedCount > 0) {
+    void chrome.runtime.sendMessage({
+      type: 'RECORD_MANUAL_BLOCK',
+      domain: window.location.hostname,
+      count: blockedCount,
+    }).catch(() => {});
+  }
+}
+
+/**
  * Scans a subtree or the document for candidates.
  */
 function scanForAds(root: ParentNode = document): void {
   if (!isDomainActive()) return;
+  cleanDisplayAds(root);
   const candidates = findCandidatesInContainer(root);
   if (candidates.length > 0) {
     void processCandidateBatch(candidates);
@@ -222,6 +252,7 @@ function setupMutationObserver(): void {
     }
 
     if (hasNewNodes) {
+      cleanDisplayAds(document);
       if (debounceTimer) window.clearTimeout(debounceTimer);
       debounceTimer = window.setTimeout(() => {
         scanForAds(document);
@@ -254,6 +285,7 @@ async function init(): Promise<void> {
   }
 
   if (isDomainActive()) {
+    cleanDisplayAds(document);
     scanForAds(document);
     setupMutationObserver();
     startYouTubeProtector();
@@ -265,6 +297,7 @@ chrome.runtime.onMessage.addListener((message) => {
   if (message.type === 'SETTINGS_UPDATED' && message.settings) {
     currentSettings = message.settings;
     if (isDomainActive()) {
+      cleanDisplayAds(document);
       scanForAds(document);
     }
   }

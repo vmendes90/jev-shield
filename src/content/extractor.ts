@@ -37,7 +37,7 @@ const PROMO_TOKEN_REGEX = /(^|[-_ ])(ad|ads|advertisement|advertising|sponsored|
 
 /**
  * Common selectors for feed cards, social items, and content containers.
- * Note: Avoid overly broad selectors like `div[class*="ad-"]` which match `ad-showing` or `load-more`.
+ * Evaluated semantically via TypeSafe Jev.
  */
 const CANDIDATE_SELECTORS = [
   'article',
@@ -60,6 +60,41 @@ const CANDIDATE_SELECTORS = [
   '.feed-item',
   '.stream-item',
   '.native-ad',
+];
+
+/**
+ * Selectors for legacy banner ads, third-party iframe containers, Google AdSense, and pop-up slots.
+ */
+export const DISPLAY_AD_SELECTORS = [
+  'ins.adsbygoogle',
+  'div[id^="google_ads"]',
+  'div[id*="ad-slot" i]',
+  'div[id*="ad_slot" i]',
+  'div[id*="ad_unit" i]',
+  'div[id*="advert" i]',
+  'div[class*="ad-banner" i]',
+  'div[class*="banner-ad" i]',
+  'div[class*="ad_container" i]',
+  'div[class*="ad-container" i]',
+  'div[class*="ad-wrapper" i]',
+  'div[class*="code-block" i]',
+  'div[class*="adbox" i]',
+  'div[class*="ad-box" i]',
+  'div[class*="ads-holder" i]',
+  'div[class*="advertisement" i]',
+  'iframe[id*="__clb-"]',
+  'iframe[src*="ad"]',
+  'iframe[src*="doubleclick"]',
+  'iframe[src*="syndication"]',
+  'iframe[id*="ad-" i]',
+  'iframe[id*="ad_" i]',
+  'iframe[class*="ad-" i]',
+  '[data-ad-client]',
+  '[data-ad-slot]',
+  '[data-ad-format]',
+  '.ad-placement',
+  '.advertisement-container',
+  '#carbonads',
 ];
 
 /**
@@ -103,13 +138,11 @@ export function isMediaOrPlayerElement(el: HTMLElement): boolean {
  * Prunes 1x1 tracking pixels, hidden analytics elements, tiny SVGs, and zero-dimension wrappers.
  */
 export function isVisibleCandidateBox(el: HTMLElement): boolean {
-  // Check CSS visibility and display
   const style = window.getComputedStyle(el);
   if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') {
     return false;
   }
 
-  // Check bounding box dimensions
   const rect = el.getBoundingClientRect();
   if (rect.height <= 40 || rect.width <= 40) {
     return false;
@@ -122,7 +155,6 @@ export function isVisibleCandidateBox(el: HTMLElement): boolean {
  * Determines if an element qualifies as a candidate for evaluation.
  */
 export function isPotentialCandidate(el: HTMLElement): boolean {
-  // Never target media players or their container shells
   if (isMediaOrPlayerElement(el)) {
     return false;
   }
@@ -131,32 +163,26 @@ export function isPotentialCandidate(el: HTMLElement): boolean {
     return false;
   }
 
-  // Avoid re-evaluating processed elements
   if (el.dataset.jevChecked === 'true' || el.dataset.jevAd === 'true') {
     return false;
   }
 
-  // Ignore page-level root containers
   if (['BODY', 'HTML', 'MAIN', 'NAV', 'HEADER', 'FOOTER'].includes(el.tagName)) {
     return false;
   }
 
   const innerText = (el.innerText || '').trim();
-  // Elements that are too short to judge or too massive (e.g. full feeds)
   if (innerText.length < 20 || innerText.length > 8000) {
     return false;
   }
 
-  // Check for explicit promo/sponsored keyword matches in text
   const lowerText = innerText.toLowerCase();
   const hasPromoKeyword = PROMO_KEYWORDS.some((kw) => lowerText.includes(kw));
 
-  // Safe token check on class and id (avoids substring false positives like 'header' or 'download')
   const className = typeof el.className === 'string' ? el.className : '';
   const idName = el.id || '';
   const hasPromoClassOrId = PROMO_TOKEN_REGEX.test(className) || PROMO_TOKEN_REGEX.test(idName);
 
-  // Check for outbound links
   const links = Array.from(el.querySelectorAll('a'))
     .map((a) => a.href)
     .filter((href) => href && href.startsWith('http'));
@@ -171,7 +197,6 @@ export function isPotentialCandidate(el: HTMLElement): boolean {
     }
   });
 
-  // Qualifies if it has a promo keyword, promo class/id, or matches candidate selectors with external links
   return hasPromoKeyword || hasPromoClassOrId || (hasExternalLink && el.matches(CANDIDATE_SELECTORS.join(',')));
 }
 
@@ -184,13 +209,12 @@ export function extractCandidate(el: HTMLElement): CandidateElement | null {
   }
 
   const rawText = (el.innerText || '').trim();
-  // Normalize and trim whitespace, capping at 600 characters for token efficiency
   const cleanSnippet = rawText.replace(/\s+/g, ' ').slice(0, 600);
 
   const hrefs = Array.from(el.querySelectorAll('a'))
     .map((a) => a.href)
     .filter((h) => h.startsWith('http'))
-    .slice(0, 3); // Max 3 links
+    .slice(0, 3);
 
   const hashPayload = `${window.location.hostname}|${cleanSnippet}`;
   const id = hashString(hashPayload);
@@ -205,7 +229,7 @@ export function extractCandidate(el: HTMLElement): CandidateElement | null {
 }
 
 /**
- * Finds all candidate elements in the document or container.
+ * Finds all candidate elements in the document or container for TypeSafe semantic evaluation.
  */
 export function findCandidatesInContainer(container: ParentNode = document): { element: HTMLElement; candidate: CandidateElement }[] {
   const elements = Array.from(container.querySelectorAll(CANDIDATE_SELECTORS.join(','))) as HTMLElement[];
@@ -221,4 +245,12 @@ export function findCandidatesInContainer(container: ParentNode = document): { e
   }
 
   return candidates;
+}
+
+/**
+ * Finds all traditional display banner ad elements, iframes, and code blocks.
+ */
+export function findDisplayAdElements(container: ParentNode = document): HTMLElement[] {
+  const elements = Array.from(container.querySelectorAll(DISPLAY_AD_SELECTORS.join(','))) as HTMLElement[];
+  return elements.filter((el) => !isMediaOrPlayerElement(el) && el.dataset.jevChecked !== 'true');
 }
