@@ -10,7 +10,7 @@ Traditional ad blockers (like uBlock Origin) rely primarily on static URL filter
 
 **Jev Shield** solves this by applying **System One AI intelligence** directly in your browser. Using TypeSafe's **Jev** model and its **`noul`** primitive, Jev Shield semantically evaluates candidate elements and calculates the calibrated probability that an element is promotional, collapsing confirmed native ads before they clutter your reading experience.
 
-In addition, Jev Shield includes a **dedicated YouTube engine** engineered to defeat modern server-side ad insertion and in-stream video ads without triggering Google's anti-adblock black-screen penalties.
+In addition, Jev Shield includes an advanced **media and video stream engine** engineered to handle in-stream video ads and media player containers without causing black-screen buffer stalls or playback interruptions.
 
 ---
 
@@ -20,10 +20,10 @@ In addition, Jev Shield includes a **dedicated YouTube engine** engineered to de
 - 🚫 **Traditional Display & Network Blocker**:
   - **DeclarativeNetRequest Rules**: Blocks 20 major third-party ad, pop-under, and tracking networks (`doubleclick`, `googlesyndication`, `antiadblocksystems`, `popads`, `taboola`, `criteo`, etc.) at the network layer without browser penalties.
   - **Display Banner & Iframe Remover**: Automatically discovers and collapses traditional banner containers (`.code-block`, `ins.adsbygoogle`, `iframe[id*="__clb-"]`, `#carbonads`, etc.) with `display: none !important`.
-- 📺 **Dual-Layer YouTube Engine**:
-  - **MAIN-World Scriptlet (`src/content/yt-engine.ts`)**: Injected at `document_start` into the page's execution context to strip `adPlacements`, `playerAds`, and `adSlots` from player responses before YouTube's video player initializes.
-  - **In-Stream Rapid Skipping (`src/content/youtube.ts`)**: Accelerates in-stream ads to 16x muted (playing a 15-second ad in ~0.9 seconds with natural frame decoding), avoiding the 10–15s black screen buffer stalls caused by unnatural duration seeks.
-  - **Pointer & Mouse Simulation (`simulateClick`)**: Simulates the full gesture lifecycle (`pointerdown` ➔ `mousedown` ➔ `pointerup` ➔ `mouseup` ➔ `click`) to bypass modern Polymer event restrictions on skip buttons in any language ("Skip", "Ignorar", "Pular").
+- 📺 **Dual-Layer Media & Video Engine**:
+  - **MAIN-World Scriptlet**: Injected at `document_start` into the page's execution context to intercept and prune ad payloads before media players initialize.
+  - **In-Stream Media Acceleration**: Accelerates in-stream ads muted with legitimate frame decoding, preventing buffer starvation and black-screen playback freezes.
+  - **Synthetic Gesture Simulation**: Emulates the full interaction lifecycle (`pointerdown` ➔ `mousedown` ➔ `pointerup` ➔ `mouseup` ➔ `click`) to ensure skip actions register reliably across modern custom web components.
 - ⚡ **Bounding-Box Pre-Filtering**: Automatically filters out invisible tracking pixels (`rect.height <= 40 || rect.width <= 40`), hidden analytics wrappers, icon badges, and zero-dimension script containers before touching the heuristic or AI layers.
 - 📦 **Batch Request Fan-Out**: Evaluates multiple candidate feed elements in parallel in a single TypeSafe API call, optimizing token consumption and reducing latency.
 - 💾 **Session Caching (`chrome.storage.session`)**: Caches evaluated snippet hashes in browser memory. Caches persist across Manifest V3 service worker idle shutdowns without causing wear on disk I/O.
@@ -46,12 +46,12 @@ flowchart TD
             MO["MutationObserver"]
             Ext["Extractor & Bounding-Box Filter"]
             DOMMod["Collapser / Badging UI"]
-            YTEngine["MAIN-World Scriptlet (yt-engine.ts)\n- Prune adPlacements\n- Intercept fetch / JSON.parse\n- 16x Ad Acceleration"]
+            MediaEngine["MAIN-World Scriptlet (yt-engine.ts)\n- Prune ad payloads\n- Intercept fetch / JSON.parse\n- In-stream media acceleration"]
         end
 
         subgraph ExtensionRuntime ["Manifest V3 Extension Runtime"]
             CS["Content Script (content/index.ts)"]
-            YTProtector["YouTube Protector (youtube.ts)\n- Feed ad remover\n- Native simulateClick"]
+            MediaProtector["Media Protector (youtube.ts)\n- In-stream cleaner\n- Synthetic gesture clicker"]
             DNR["DeclarativeNetRequest Rules\n- Block doubleclick, googlesyndication"]
             SW["Background Service Worker (background/index.ts)"]
             StoreSession[("chrome.storage.session\n- Snippet Hash Cache\n- 2m Error Cooldown")]
@@ -65,7 +65,7 @@ flowchart TD
     end
 
     DOM --> MO --> Ext --> CS
-    YTEngine -->|"prune ad slots"| DOM
+    MediaEngine -->|"prune ad slots"| DOM
     CS -->|"batch candidate cards"| SW
     SW <--> StoreSession
     SW <--> StoreLocal
@@ -122,7 +122,7 @@ npm run test:chrome
 
 Or target a specific URL directly:
 ```bash
-node scripts/launch_chrome.js "https://www.youtube.com/watch?v=9EkMD8BoRVw"
+node scripts/launch_chrome.js "https://canyoublockit.com/testing/"
 ```
 
 ### 4. Setup Your API Key
@@ -131,7 +131,7 @@ node scripts/launch_chrome.js "https://www.youtube.com/watch?v=9EkMD8BoRVw"
 2. Select the **Settings** tab.
 3. Paste your TypeSafe API key (`sk_live_...`) into the API Key input field and click **Save**.
 4. Adjust your **AI Sensitivity** threshold in the Dashboard (default is **85%**).
-5. Browse feeds (e.g. Reddit, X/Twitter, or news feeds) or stream videos on YouTube without intrusive ads or black-screen buffering stalls.
+5. Browse your favorite feeds, social media platforms, and video sites without intrusive sponsored cards, banner ads, or player stalls.
 
 ---
 
@@ -153,8 +153,8 @@ jev-shield/
 │   │   └── index.ts         # Shared TypeScript interfaces & messaging contracts
 │   ├── content/
 │   │   ├── extractor.ts     # Bounding-box pre-filtering, heuristics, FNV-1a hashing
-│   │   ├── youtube.ts       # Isolated content script: feed cleaner & gesture clicker
-│   │   ├── yt-engine.ts     # MAIN-world scriptlet: player ad pruning & 16x acceleration
+│   │   ├── youtube.ts       # Isolated content script: media cleaner & gesture clicker
+│   │   ├── yt-engine.ts     # MAIN-world scriptlet: media ad pruning & acceleration
 │   │   └── index.ts         # Primary content script: MutationObserver & badging
 │   ├── background/
 │   │   ├── typesafe.ts      # TypeSafe API client, parallel noul calls, error back-off
