@@ -17,6 +17,7 @@ export interface UserSettings {
   threshold: number; // e.g. 0.80 - 0.99 (default: 0.85)
   isEnabled: boolean;
   revealBadge: boolean; // Show "Blocked by Jev" badge vs instant display:none
+  deepScan: boolean; // Deep AI Scan: evaluate all feed cards & recommendations with Jev
   whitelistedDomains: string[];
 }
 

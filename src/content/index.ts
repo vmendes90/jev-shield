@@ -7,6 +7,7 @@ let currentSettings: UserSettings = {
   threshold: 0.85,
   isEnabled: true,
   revealBadge: true,
+  deepScan: false,
   whitelistedDomains: [],
 };
 
@@ -220,7 +221,7 @@ function cleanDisplayAds(root: ParentNode = document): void {
 function scanForAds(root: ParentNode = document): void {
   if (!isDomainActive()) return;
   cleanDisplayAds(root);
-  const candidates = findCandidatesInContainer(root);
+  const candidates = findCandidatesInContainer(root, currentSettings.deepScan);
   if (candidates.length > 0) {
     void processCandidateBatch(candidates);
   }

@@ -6,6 +6,7 @@ const DEFAULT_SETTINGS: UserSettings = {
   threshold: 0.85,
   isEnabled: true,
   revealBadge: true,
+  deepScan: false,
   whitelistedDomains: [],
 };
 

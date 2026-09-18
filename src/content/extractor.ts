@@ -57,6 +57,15 @@ const CANDIDATE_SELECTORS = [
   'div[id*="promoted" i]',
   'div[id*="google_ads" i]',
   'div[data-ad-slot]',
+  'div[class*="card" i]',
+  'div[class*="feed-item" i]',
+  'div[class*="stream-item" i]',
+  'div[class*="recommended" i]',
+  'div[class*="suggestion" i]',
+  'div[class*="widget" i]',
+  'div[class*="taboola" i]',
+  'div[class*="outbrain" i]',
+  'div[class*="revcontent" i]',
   '.feed-item',
   '.stream-item',
   '.native-ad',
@@ -154,7 +163,7 @@ export function isVisibleCandidateBox(el: HTMLElement): boolean {
 /**
  * Determines if an element qualifies as a candidate for evaluation.
  */
-export function isPotentialCandidate(el: HTMLElement): boolean {
+export function isPotentialCandidate(el: HTMLElement, deepScan = false): boolean {
   if (isMediaOrPlayerElement(el)) {
     return false;
   }
@@ -172,8 +181,14 @@ export function isPotentialCandidate(el: HTMLElement): boolean {
   }
 
   const innerText = (el.innerText || '').trim();
-  if (innerText.length < 20 || innerText.length > 8000) {
+  // Relaxed threshold: at least 10 chars (e.g. "Promoted by", short sponsored blurbs)
+  if (innerText.length < 10 || innerText.length > 8000) {
     return false;
+  }
+
+  // When Deep AI Scan is enabled, evaluate all candidate cards, recommendations, and feed items directly
+  if (deepScan) {
+    return el.matches(CANDIDATE_SELECTORS.join(','));
   }
 
   const lowerText = innerText.toLowerCase();
@@ -197,14 +212,23 @@ export function isPotentialCandidate(el: HTMLElement): boolean {
     }
   });
 
-  return hasPromoKeyword || hasPromoClassOrId || (hasExternalLink && el.matches(CANDIDATE_SELECTORS.join(',')));
+  const isRecommendationWidget = el.matches(
+    'div[class*="recommended" i], div[class*="suggestion" i], div[class*="taboola" i], div[class*="outbrain" i], div[class*="revcontent" i]'
+  );
+
+  return (
+    hasPromoKeyword ||
+    hasPromoClassOrId ||
+    isRecommendationWidget ||
+    (hasExternalLink && el.matches(CANDIDATE_SELECTORS.join(',')))
+  );
 }
 
 /**
  * Extracts a candidate element into a structured payload for Jev evaluation.
  */
-export function extractCandidate(el: HTMLElement): CandidateElement | null {
-  if (!isPotentialCandidate(el)) {
+export function extractCandidate(el: HTMLElement, deepScan = false): CandidateElement | null {
+  if (!isPotentialCandidate(el, deepScan)) {
     return null;
   }
 
@@ -231,13 +255,16 @@ export function extractCandidate(el: HTMLElement): CandidateElement | null {
 /**
  * Finds all candidate elements in the document or container for TypeSafe semantic evaluation.
  */
-export function findCandidatesInContainer(container: ParentNode = document): { element: HTMLElement; candidate: CandidateElement }[] {
+export function findCandidatesInContainer(
+  container: ParentNode = document,
+  deepScan = false
+): { element: HTMLElement; candidate: CandidateElement }[] {
   const elements = Array.from(container.querySelectorAll(CANDIDATE_SELECTORS.join(','))) as HTMLElement[];
   const candidates: { element: HTMLElement; candidate: CandidateElement }[] = [];
   const seenIds = new Set<string>();
 
   for (const el of elements) {
-    const candidate = extractCandidate(el);
+    const candidate = extractCandidate(el, deepScan);
     if (candidate && !seenIds.has(candidate.id)) {
       seenIds.add(candidate.id);
       candidates.push({ element: el, candidate });

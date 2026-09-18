@@ -5,6 +5,7 @@ let currentSettings: UserSettings = {
   threshold: 0.85,
   isEnabled: true,
   revealBadge: true,
+  deepScan: false,
   whitelistedDomains: [],
 };
 
@@ -13,6 +14,7 @@ let currentTabDomain = '';
 // DOM Elements
 const enabledToggle = document.getElementById('enabledToggle') as HTMLInputElement;
 const badgeToggle = document.getElementById('badgeToggle') as HTMLInputElement;
+const deepScanToggle = document.getElementById('deepScanToggle') as HTMLInputElement;
 const apiKeyInput = document.getElementById('apiKeyInput') as HTMLInputElement;
 const saveKeyBtn = document.getElementById('saveKeyBtn') as HTMLButtonElement;
 const thresholdSlider = document.getElementById('thresholdSlider') as HTMLInputElement;
@@ -91,6 +93,7 @@ function renderUI(settings: UserSettings, stats: ExtensionStats, cooldown?: Cool
   // Toggles
   enabledToggle.checked = settings.isEnabled;
   badgeToggle.checked = settings.revealBadge;
+  deepScanToggle.checked = !!settings.deepScan;
 
   // Status pill
   if (settings.isEnabled) {
@@ -241,6 +244,10 @@ async function init(): Promise<void> {
 
   badgeToggle.addEventListener('change', () => {
     void saveSettings({ revealBadge: badgeToggle.checked });
+  });
+
+  deepScanToggle.addEventListener('change', () => {
+    void saveSettings({ deepScan: deepScanToggle.checked });
   });
 
   thresholdSlider.addEventListener('input', () => {
